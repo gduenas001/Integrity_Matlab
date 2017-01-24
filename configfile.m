@@ -21,6 +21,9 @@ Q= [sigmaV^2, 0; 0, sigmaG^2];
 % observation parameters
 dz= 2; % d.o.f. of one measurement
 MAX_RANGE= 50.0; % metres (default = 30)
+V_FOV= pi*MAX_RANGE^2 / 2;
+LAMBDA= 0.00001; % density of outliers/new lm. Very small number until better modeled.
+P_D= 0.9; % probability of detection of a lm.
 DT_OBSERVE= 1*DT_CONTROLS; % seconds, time interval between observations
 
 % observation noises

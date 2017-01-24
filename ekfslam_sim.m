@@ -1,5 +1,5 @@
 
-% This script runs a SLAM simulator with DA and P(IA)
+% This script runs a localization simulator with DA and P(IA)
 
 
 
@@ -51,8 +51,8 @@ while iwp ~= 0
             elseif SWITCH_ASSOCIATION == 1
                 [zf,idf, zn]= data_associate_localNN(XX,PX,z,RE, GATE_REJECT, GATE_AUGMENT);
             elseif SWITCH_ASSOCIATION == 2
-                [gamma,H,Y,idf,Noutliers,PCA(step),PCAt(step),allOutliers]= ...
-                    DA(XX,PX,z,idft,RE,GATE,'MJ');
+                [gamma,H,Y,idf,PCA(step),PCAt(step),allOutliers]= ...
+                    DA(XX,PX,z,idft,RE,GATE,V_FOV,LAMBDA,P_D,'outliers');
             end
             
             if ~allOutliers
@@ -61,14 +61,6 @@ while iwp ~= 0
                 XX= XX + K*gamma;
                 PX= (eye(3) - K*H)*PX;
 %                 PX= PX - K*H*PX*H'*K';
-                
-%                 if SWITCH_USE_IEKF == 1
-%                     update_iekf(zf,RE,idf, 5);
-%                 elseif SWITCH_UPDATE_GLOBAL == 1
-%                     update_global(zf,RE,idf, SWITCH_BATCH_UPDATE);
-%                 else
-%                     update_normal(zf,RE,idf, SWITCH_BATCH_UPDATE);
-%                 end
             end
         else
             PCA(step)= 1;
@@ -100,8 +92,6 @@ while iwp ~= 0
             set(h.xf, 'xdata', XX(4:2:end), 'ydata', XX(5:2:end))
             plines= make_laser_lines (z,XX(1:3));
             set(h.obs, 'xdata', plines(1,:), 'ydata', plines(2,:))
-            %             pfcov= make_feature_covariance_ellipses(XX,PX);
-            %             set(h.fcov, 'xdata', pfcov(1,:), 'ydata', pfcov(2,:))
         end
         drawnow
     end

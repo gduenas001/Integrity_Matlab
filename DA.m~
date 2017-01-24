@@ -1,6 +1,6 @@
 
-function [gamma_star,H_star,Y_star,idf,PCA,PCAt,allOutliers]=...
-    DA(x,P,z,idft,R,GATE,V_FOV,LAMBDA,P_D,option)
+function [gamma_star,H_star,Y_star,idf,Noutliers,PCA,PCAt,allOutliers]=...
+    DA(x,P,z,idft,R,GATE,V_FOV,lambda,option)
 
 global T h H gamma ngamma y Y psi IA beta phi Const step
 
@@ -21,7 +21,10 @@ PCAt= 1;
 genereate_associations(x,P,z,R,GATE);
 
 % generate the parameters for each association
-generate_models(P,z,dz,Nz,R,V_FOV,LAMBDA,P_D);
+generate_models(P,z,Nz,R,V_FOV,LAMBDA,P_D);
+
+% If the only possible one is all outliers -> get out!
+if Noutliers == Nz, allOutliers= 1; return, end
 
 if psi > 1
     switch option
@@ -111,29 +114,27 @@ if psi > 1
         case 'outliers'
             [~,jstar]= min(beta);
             
-            if T(jstar,end) == Nz, allOutliers= 1; end;
-            
             C= zeros(1,psi);
             y= cell(psi,1);
-            ny= zeros(psi,1);
             for j= 1:psi
                 if j == jstar, continue, end;
                 
-                % Degrees of freedom
-                dof= dz*(Nz - T(j,end));
-                
-                % compute the centers - no need to store y{j}'s
-                y{j}= h{jstar} - h{j};
-                ny(j)= y{j}'*(Y{j}\y{j});
-                
                 % Compute C_j
                 C(j)= log( (det(Y{j})/det(Y{jstar})) * Const^(2*(phi(jstar)-phi(j))) );
+                
+                fun= @(x) ( ncx2cdf(x-C(j),dof,ncx(1)) + ncx2cdf(x,dof,ncx(2)) ) .* chi2pdf(x,dof);
+                direct_evaluation_PIA = integral( fun , 0, inf)
+                
+                
+                ny= zeros(psi,1);
+                % compute the centers
+                y{j}= h{jstar} - h{j};
+                ny(j)= y{j}'*(Y{j}\y{j});
             end
             
-            % Direct evaluation of P(IA)
-            fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
-            PIA = integral( fun , 0, inf);
-            PCA= 1 - PIA;
+            
+            
+            
     end
 else
     jstar= 1;
