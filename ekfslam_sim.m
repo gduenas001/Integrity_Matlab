@@ -1,6 +1,6 @@
 
-% This script runs a simulation with two landmarks and the P(CA) of
-% different methods of association. 
+% This script runs a SLAM simulator with DA and P(IA)
+
 
 
 clear; close all;
@@ -25,10 +25,7 @@ pcount=0;
 while iwp ~= 0
     if step > NUMBER_STEPS, break, end
     step= step + 1;
-    
-%     % sample from a  Gaussian
-%     XX= mvnrnd(xtrue,PX)';
-    
+        
     % Compute true data
     [G,iwp]= compute_steering(xtrue, wp, iwp, AT_WAYPOINT, G, RATEG, MAXG, dt);
     if iwp==0 && NUMBER_LOOPS > 1, pack; iwp=1; NUMBER_LOOPS= NUMBER_LOOPS-1; end % perform loops: if final waypoint reached, go back to first
@@ -47,8 +44,8 @@ while iwp ~= 0
         [z,idft]= get_observations(xtrue, lm, ftag, MAX_RANGE); 
         z= add_observation_noise(z,R, SWITCH_SENSOR_NOISE);
         
+        % DA
         if ~isempty(z)
-            % DA
             if SWITCH_ASSOCIATION == 1
                 [zf,idf,zn, da_table]= data_associate_known(XX,z,idft, da_table);
             elseif SWITCH_ASSOCIATION == 0

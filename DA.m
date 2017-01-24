@@ -29,7 +29,7 @@ if Noutliers == Nz, allOutliers= 1; return, end
 
 if psi > 1
     switch option
-        case 'GD2'
+        case 'direct'
             % Candidate association
             [~,jstar]= min(ngamma);
             idf= T(jstar,1:Nz);
@@ -48,7 +48,7 @@ if psi > 1
             
             % calculate the PCA
             PCA= 1 - integral(@(x) PCAfun(x, (Nz-Noutliers)*dz, min2), 0, inf);
-        case 'GD'
+        case 'simplification'
             % Candidate association
             [~,jstar]= min(ngamma);
             idf= T(jstar,1:Nz);
