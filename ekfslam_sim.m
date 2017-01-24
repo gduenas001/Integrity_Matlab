@@ -21,7 +21,7 @@ plines=[]; % for laser line animation
 pcount=0;
 
 
-% Main loop 
+% *****************    MAIN LOOP    *****************
 while iwp ~= 0
     if step > NUMBER_STEPS, break, end
     step= step + 1;
@@ -46,25 +46,22 @@ while iwp ~= 0
         
         % DA
         if ~isempty(z)
-            if SWITCH_ASSOCIATION == 1
+            if SWITCH_ASSOCIATION == 0
                 [zf,idf,zn, da_table]= data_associate_known(XX,z,idft, da_table);
-            elseif SWITCH_ASSOCIATION == 0
-                [zf,idf, zn]= data_associate(XX,PX,z,RE, GATE_REJECT, GATE_AUGMENT);
+            elseif SWITCH_ASSOCIATION == 1
+                [zf,idf, zn]= data_associate_localNN(XX,PX,z,RE, GATE_REJECT, GATE_AUGMENT);
             elseif SWITCH_ASSOCIATION == 2
-                [gamma,H,Y,idf,Noutliers,PCA(step),allOutliers]= data_associate_GD(XX,PX,z,RE,GATE);
-            elseif SWITCH_ASSOCIATION == 3
                 [gamma,H,Y,idf,Noutliers,PCA(step),PCAt(step),allOutliers]= ...
                     DA(XX,PX,z,idft,RE,GATE,'MJ');
             end
             
-%             if ~allOutliers
-%                 % update the state
-%                 K= PX*H'/Y;
-%                 XX= XX + K*gamma;
-%                 % PX= (eye(3) - K*H)*PX;
+            if ~allOutliers
+                % update the state
+                K= PX*H'/Y;
+                XX= XX + K*gamma;
+                PX= (eye(3) - K*H)*PX;
 %                 PX= PX - K*H*PX*H'*K';
-%                 
-%                 
+                
 %                 if SWITCH_USE_IEKF == 1
 %                     update_iekf(zf,RE,idf, 5);
 %                 elseif SWITCH_UPDATE_GLOBAL == 1
@@ -72,7 +69,7 @@ while iwp ~= 0
 %                 else
 %                     update_normal(zf,RE,idf, SWITCH_BATCH_UPDATE);
 %                 end
-%             end
+            end
         else
             PCA(step)= 1;
         end
@@ -93,11 +90,11 @@ while iwp ~= 0
         set(h.xv, 'xdata', xv(1,:), 'ydata', xv(2,:))
         set(h.vcov, 'xdata', pvcov(1,:), 'ydata', pvcov(2,:))
         
-        %         pcount= pcount+1;
-        %         if pcount == 120 % plot path infrequently
-        %             pcount=0;
-        %             set(h.pth, 'xdata', DATA.path(1,1:DATA.i), 'ydata', DATA.path(2,1:DATA.i))
-        %         end
+%         pcount= pcount+1;
+%         if pcount == 120 % plot path infrequently
+%             pcount=0;
+%             set(h.pth, 'xdata', DATA.path(1,1:DATA.i), 'ydata', DATA.path(2,1:DATA.i))
+%         end
         
         if dtsum==0 && ~isempty(z) % plots related to observations
             set(h.xf, 'xdata', XX(4:2:end), 'ydata', XX(5:2:end))
@@ -110,10 +107,13 @@ while iwp ~= 0
     end
     
     
-end % end of main loop
+end 
+% *****************  END OF MAIN LOOP    *****************
+
+%% Post-processing
 if SWITCH_PROFILE, profile report, end
 
-
+% clean extra allocated memory
 PCA(step+1:end)= [];
 PCAt(step+1:end)= [];
 realPCA(step+1:end)= [];
@@ -121,7 +121,7 @@ calcPCA(step+1:end)= [];
 errorXX(step+1:end,:)= [];
 stdXX(step+1:end,:)= [];
 
-% plots - PCA VS time
+% plots - P(CA) VS time
 figure; hold on; grid on;
 plot(PCA,'-b');
 plot(PCAt,'or');

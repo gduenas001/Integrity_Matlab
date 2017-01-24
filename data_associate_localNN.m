@@ -1,4 +1,4 @@
-function [zf,idf, zn]= data_associate(x,P,z,R, gate1, gate2)
+function [zf,idf, zn]= data_associate_localNN(x,P,z,R, gate1, gate2)
 % 
 % Simple gated nearest-neighbour data-association. No clever feature
 % caching tricks to speed up association, so computation is O(N), where
