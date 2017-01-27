@@ -116,31 +116,22 @@ if psi > 1
             C= zeros(1,psi);
             y= cell(psi,1);
             ny= zeros(psi,1);
-            PIA_term= zeros(psi,1);
             for j= 1:psi
                 if j == jstar, continue, end;
                 
                 % Degrees of freedom
                 dof= dz*(Nz - T(j,end));
                 
-                
-                if dof == 0
-                    % if all outliers -> ny = 0
-                    ny(j)= 0;
-                else               
-                    % Interpolate to lower bound the non-centrality parameters
-                    ny(j)= interp1( 2:0.5:100, squeeze(LB(1,dof/2,:)), ngamma(j),'linear','extrap');
-                end
+                % compute the centers - no need to store y{j}'s
+                ny(j)= interp1([2:0.5:100], T(1,dof/2,:), ngamma(j));
                 
                 % Compute C_j
                 C(j)= log( (det(Y{j})/det(Y{jstar})) * Const^(2*(phi(jstar)-phi(j))) );
-                
-                % Direct evaluation of P(IA)
-                fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
-                PIA_term(j) = integral( fun , 0, inf);
             end
             
-            PIA= sum(PIA_term);
+            % Direct evaluation of P(IA)
+            fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
+            PIA = integral( fun , 0, inf);
             PCA= 1 - PIA;
     end
 else
@@ -155,17 +146,17 @@ gamma_star= gamma{jstar};
 H_star= H{jstar};
 Y_star= Y{jstar};
 
-% % check CA or IA
-% if ~allOutliers
-%     % check CA or IA
-%     boolCorrect= idf == idft;
-%     if sum(boolCorrect) ~= Nz-Noutliers % this is not a good check
-%         PCAt= 0;
-%         IA = IA + 1;
-%     end
-% else
-%     PCAt= 1;
-% end
+% check CA or IA
+if ~allOutliers
+    % check CA or IA
+    boolCorrect= idf == idft;
+    if sum(boolCorrect) ~= Nz-Noutliers % this is not a good check
+        PCAt= 0;
+        IA = IA + 1;
+    end
+else
+    PCAt= 1;
+end
 
 
 

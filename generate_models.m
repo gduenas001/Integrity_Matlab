@@ -22,10 +22,10 @@ for j= 1:psi
     phi_j= T_j(end);
     
     % If all outliers
-    if phi_j == Nz, beta(j)= -phi_j*log_C;return, end;
+    if phi_j == Nz, beta(j)= -phi_j*log_C; continue, end;
     
     % If there is an outlier eliminate the measurement associated with it
-    zj= z(:, T_j ~= 0 );
+    zj= z(:, T_j(1:end-1) ~= 0 );
     
     % make R a block diagonal with higher dimension
     R= kron(eye(Nz-phi_j),R_2x2);

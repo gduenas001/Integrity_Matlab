@@ -6,6 +6,13 @@ addpath('./utilities');
 set(0,'DefaultFigureWindowStyle','normal')
 format compact
 
+% Initialise states and other global variables
+global XX PX lm IA step LB
+
+
+% Load table for the lower bounds of the non-centrality parameter
+load('LowerBound.mat');
+
 % control parameters
 V= 0.5; % m/s
 MAXG= 30*pi/180; % radians, maximum steering angle (-MAXG < g < MAXG)
@@ -63,8 +70,6 @@ SWITCH_ASSOCIATION= 2; % if 0, associations are given, if 1, they are estimated 
 
 %% INITIALIZATIONS 
 
-% Initialise states and other global variables
-global XX PX lm IA step
 
 lm= [30, 30;
       1.8, -1.8];
