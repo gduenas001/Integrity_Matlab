@@ -3,7 +3,7 @@
 
 
 
-clear; close all;
+clear;% close all;
 dbstop if error
 configfile; % ** USE THIS FILE TO CONFIGURE THE EKF-SLAM **
 
@@ -20,7 +20,7 @@ veh= [0 -WHEELBASE -WHEELBASE; 0 -2 2]; % vehicle animation
 plines=[]; % for laser line animation
 pcount=0;
 
-
+tic
 % *****************    MAIN LOOP    *****************
 while iwp ~= 0
     if step > NUMBER_STEPS, break, end
@@ -100,7 +100,7 @@ while iwp ~= 0
     
 end 
 % *****************  END OF MAIN LOOP    *****************
-
+toc
 %% Post-processing
 if SWITCH_PROFILE, profile report, end
 

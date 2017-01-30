@@ -2,7 +2,7 @@
 function [gamma_star,H_star,Y_star,idf,PCA,PCA_MJ,PCAt,allOutliers]=...
     DA(x,P,z,idft,R,GATE,V_FOV,LAMBDA,P_D,option)
 
-global T h H gamma ngamma y Y psi IA beta phi Const LB step 
+global T h H gamma ngamma y Y psi IA beta phi Const LB C_mesh_interp ny_mesh_interp PIA_terms step 
 
 allOutliers= 0;
 
@@ -37,7 +37,7 @@ if psi > 1
                 y{j}= h{jstar} - h{j};
                 ny(j)= y{j}'*(Y{j}\y{j}); % this is the non-centrality parameter
             end
-            
+            lambda2_mesh
             % Eliminate the jstar association from ny
             ny(jstar)= [];
             min2= min(ny);
@@ -139,9 +139,13 @@ if psi > 1
                 % Compute C_j
                 C(j)= log( (det(Y{j})/det(Y{jstar})) * Const^(2*(phi(jstar)-phi(j))) );
                 
-                % Direct evaluation of P(IA)
-                fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
-                PIA_term(j) = integral( fun , 0, inf);
+%                 % Direct evaluation of P(IA) - integral
+%                 fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
+%                 PIA_term(j) = integral( fun , 0, inf);
+                
+                % Direct evaluation of P(IA) - table
+                PIA_term(j)= ...
+                    interp2(C_mesh_interp,ny_mesh_interp,squeeze(PIA_terms(:,dof/2,:))',C(j),ny(j),'linear',0);
             end
             
             PIA= sum(PIA_term);
