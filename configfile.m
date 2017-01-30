@@ -41,7 +41,7 @@ R= [sigmaR^2 0; 0 sigmaB^2];
 %          0,  deg2rad(5)^2];
      
 % data association innovation gates (Mahalanobis distances)
-GATE= chi2inv(0.99,dz);
+GATE= chi2inv(0.9999,dz);
 GATE= inf;
 GATE_REJECT= 4.0; % maximum distance for association
 GATE_AUGMENT= 25.0; % minimum distance for creation of new feature
@@ -72,12 +72,14 @@ SWITCH_ASSOCIATION= 2; % if 0, associations are given, if 1, they are estimated 
 
 
 lm= [30, 30;
-      1.8, -1.8];
-%   lm= [30, 30, 30, 30;
-%       0.8, -0.8, 1.6, -1.6];
+    1, -1];
+% lm= [30, 30, 30;
+%     2, 0, -2];
+% lm= [30, 30, 30, 30;
+%     1.1, -1.1, 2.2, -2.2];
 
 % Way points
-wp= [0,80;
+wp= [0,5;
      0,  0];
  
  % true & estiamted state
@@ -85,9 +87,9 @@ xtrue= zeros(3,1);
 XX= zeros(3,1);
 
 % initial pose covariance
-PX= [0.3^2, 0, 0;
-     0, 0.3^2, 0;
-     0, 0, deg2rad(5)^2];
+PX= [0.0001^2, 0, 0;
+     0, 0.0001^2, 0;
+     0, 0, deg2rad(0.001)^2];
 
 dt= DT_CONTROLS;        % change in time between predicts
 QE= Q; RE= R; if SWITCH_INFLATE_NOISE, QE= 2*Q; RE= minR + 2*R; end % inflate estimated noises (ie, add stabilising noise)
@@ -103,9 +105,11 @@ G= 0;                   % initial steer angle
 % more initializations
 step= 0;
 PCA= zeros(5000,1);
+PCA_MJ= zeros(5000,1);
 PCAt= ones(5000,1);
 realPCA= zeros(5000,1);
 calcPCA= zeros(5000,1);
+calcPCA_MJ= zeros(5000,1);
 IA= 0;
 errorXX= zeros(5000,3);
 stdXX= zeros(5000,3);

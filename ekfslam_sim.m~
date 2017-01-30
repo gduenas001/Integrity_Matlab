@@ -70,7 +70,7 @@ while iwp ~= 0
     stdXX(step,:)= 3*sqrt(diag(PX))';
     realPCA(step)= 1 - IA/step;
     calcPCA(step)= sum(PCA)/step;
-    calcPCA_MJ(step)= sum(PCA_MJ)/step;
+    calcPCA_MJ(step)= sum(PCA)/step;
     
     % Plots
     if SWITCH_GRAPHICS
@@ -153,8 +153,8 @@ axis([0,step,0,1]);
 figure; hold on; grid on
 plot(realPCA,'-r','linewidth',2);
 plot(calcPCA,'b-','linewidth',2);
-plot(calcPCA_MJ,'g-','linewidth',2);
-legend('Real P(CA)','Average calculated P(CA)','Average calculated P(CA) - MJ','location','southeast');
+plot(calcPCA,'g-','linewidth',2);
+legend('Real P(CA)','Average calculated P(CA)','location','southeast');
 axis([0,step,0,1]);
 
 

@@ -1,5 +1,5 @@
 
-function [gamma_star,H_star,Y_star,idf,PCA,PCAt,allOutliers]=...
+function [gamma_star,H_star,Y_star,idf,PCA,PCA_MJ,PCAt,allOutliers]=...
     DA(x,P,z,idft,R,GATE,V_FOV,LAMBDA,P_D,option)
 
 global T h H gamma ngamma y Y psi IA beta phi Const LB step 
@@ -111,7 +111,10 @@ if psi > 1
         case 'outliers'
             [~,jstar]= min(beta);
             
+            % If the candidate association is all outliers -> notify
             if T(jstar,end) == Nz, allOutliers= 1; end;
+            
+            nonConflictAssoc= nonConflictingAssociations(jstar);
             
             C= zeros(1,psi);
             y= cell(psi,1);
@@ -119,6 +122,7 @@ if psi > 1
             PIA_term= zeros(psi,1);
             for j= 1:psi
                 if j == jstar, continue, end;
+                if any(j == nonConflictAssoc), continue, end; % the corresponding PIA_term will be zero
                 
                 % Degrees of freedom
                 dof= dz*(Nz - T(j,end));
@@ -129,7 +133,7 @@ if psi > 1
                     ny(j)= 0;
                 else               
                     % Interpolate to lower bound the non-centrality parameters
-                    ny(j)= interp1( 2:0.5:100, squeeze(LB(1,dof/2,:)), ngamma(j),'linear','extrap');
+                    ny(j)= interp1( 2:1:200, squeeze(LB(5,dof/2,:)), ngamma(j),'linear','extrap');
                 end
                 
                 % Compute C_j
@@ -142,6 +146,27 @@ if psi > 1
             
             PIA= sum(PIA_term);
             PCA= 1 - PIA;
+            idf= T(jstar,1:Nz);
+            
+            %% Comparizon with MJ approach - only compares with same #outliers associations
+            T_MJ= T;
+            Noutliers_MJ= T_MJ(jstar,end);
+            
+            % Keep only those associations with the same number of outliers
+            Tind_MJ= T_MJ(:,end) == Noutliers_MJ;
+            T_MJ= T_MJ(Tind_MJ, :);
+            psi_MJ= size(T_MJ,1);
+            
+            if psi_MJ == 1
+                PCA_MJ= 1;
+            else
+                ny_MJ= ny(Tind_MJ);
+                [~,jstar_MJ]= min(ny_MJ);
+                ny_MJ(jstar_MJ)= [];
+                nymin2_MJ= min(ny_MJ);
+                PCA_MJ= chi2cdf(nymin2_MJ/4, (Nz-Noutliers_MJ)*dz + Nxv);
+                PI_MJ= 1- PCA_MJ;
+            end
     end
 else
     jstar= 1;
@@ -155,18 +180,19 @@ gamma_star= gamma{jstar};
 H_star= H{jstar};
 Y_star= Y{jstar};
 
-% % check CA or IA
-% if ~allOutliers
-%     % check CA or IA
-%     boolCorrect= idf == idft;
-%     if sum(boolCorrect) ~= Nz-Noutliers % this is not a good check
-%         PCAt= 0;
-%         IA = IA + 1;
-%     end
-% else
-%     PCAt= 1;
-% end
-
+% check CA or IA
+Noutlierst= 0; % Real number of outiers, always 0 with no outliers
+if T(jstar,end) < Noutlierst
+    IA= IA + 1; PCAt= 0;
+elseif T(jstar,end) == Noutlierst
+    if ~sum(idf == idft)
+        IA= IA + 1; PCAt= 0;
+    end
+elseif T(jstar,end) > Noutlierst
+    if any((idft - idf) .* idf)
+        IA= IA + 1; PCAt= 0;
+    end
+end
 
 
 
