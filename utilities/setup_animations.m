@@ -6,6 +6,3 @@ h.obs= plot(0,0,'y'); % observations
 h.xf= plot(0,0,'r+'); % estimated features
 h.vcov= plot(0,0,'r'); % vehicle covariance ellipses
 h.fcov= plot(0,0,'r'); % feature covariance ellipses
-
-%
-%

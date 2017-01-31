@@ -115,6 +115,7 @@ if psi > 1
             if T(jstar,end) == Nz, allOutliers= 1; end;
             
             nonConflictAssoc= nonConflictingAssociations(jstar);
+            nonConflictAssoc= 1;
             
             C= zeros(1,psi);
             y= cell(psi,1);
@@ -173,9 +174,13 @@ if psi > 1
             end
     end
 else
+    
+    
     jstar= 1;
     PCA= 1;
+    PCA_MJ= 1;
     
+    if T(jstar,end) == Nz, allOutliers= 1; end;
     idf= T(jstar,1:Nz);
 end
 

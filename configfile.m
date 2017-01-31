@@ -16,7 +16,7 @@ load('PIA_terms_table');
 % [C_mesh_interp, ny_mesh_interp]= meshgrid(0:5:100,0:1:100);
 
 % control parameters
-V= 0.5; % m/s
+V= 5; % m/s
 MAXG= 30*pi/180; % radians, maximum steering angle (-MAXG < g < MAXG)
 RATEG= 20*pi/180; % rad/s, maximum rate of change in steer angle
 WHEELBASE= 4; % metres, vehicle wheel-base
@@ -29,23 +29,23 @@ Q= [sigmaV^2, 0; 0, sigmaG^2];
 
 % observation parameters
 dz= 2; % d.o.f. of one measurement
-MAX_RANGE= 50.0; % metres (default = 30)
+MAX_RANGE= 30.0; % metres (default = 30)
 % V_FOV= pi*MAX_RANGE^2 / 2; % Total field of view (FOV) of the robot, constant over time
 V_FOV= 2*MAX_RANGE*V*DT_CONTROLS; % Approximately the new FOV where new lm may appear
-LAMBDA= 0.01; % density of new lm in the new FOV. Very small number until better modeled.
-P_D= 0.9; % probability of detection of a lm.
+LAMBDA= 0.00001; % density of new lm in the new FOV. Very small number until better modeled.
+P_D= 0.95; % probability of detection of a lm.
 DT_OBSERVE= 1*DT_CONTROLS; % seconds, time interval between observations
 
 % observation noises
-sigmaR= 0.1; % metres ( default 0.1 )
-sigmaB= deg2rad(1); % radians ( default (1.0*pi/180) )
+sigmaR= 1; % metres ( default 0.1 )
+sigmaB= deg2rad(5); % radians ( default (1.0*pi/180) )
 R= [sigmaR^2 0; 0 sigmaB^2];
 % minR= [20^2, 0;
 %          0,  deg2rad(5)^2];
      
 % data association innovation gates (Mahalanobis distances)
-GATE= chi2inv(0.9999,dz);
-GATE= inf;
+GATE= chi2inv(1-1e-15,dz); %0.9999999,dz);
+% GATE= inf;
 GATE_REJECT= 4.0; % maximum distance for association
 GATE_AUGMENT= 25.0; % minimum distance for creation of new feature
 % For 2-D observation:
@@ -55,7 +55,7 @@ GATE_AUGMENT= 25.0; % minimum distance for creation of new feature
 % waypoint proximity
 AT_WAYPOINT= 1.0; % metres, distance from current waypoint at which to switch to next waypoint
 NUMBER_LOOPS= 1; % number of loops through the waypoint list
-NUMBER_STEPS= 1000;
+NUMBER_STEPS= 5000;
 
 % switches
 SWITCH_CONTROL_NOISE= 1; % if 0, velocity and gamma are perfect
@@ -76,14 +76,16 @@ SWITCH_ASSOCIATION= 2; % if 0, associations are given, if 1, they are estimated 
 
 % lm= [30, 30;
 %     1, -1];
-lm= [30, 30, 30;
-    2, 0, -2];
-% lm= [30, 30, 30, 30;
-%     1.1, -1.1, 2.2, -2.2];
+% lm= [30, 30, 30;
+%     2, 0, -2];
+lm= [30, 30, 30, 30;
+    1.5, -1.5, 3, -3];
 
 % Way points
 wp= [0,5;
      0,  0];
+
+load('example_webmap');
  
  % true & estiamted state
 xtrue= zeros(3,1);

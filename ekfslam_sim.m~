@@ -19,7 +19,7 @@ hold on, axis equal
 xlabel('metres'), ylabel('metres')
 set(fig, 'name', 'EKF-SLAM Simulator')
 plot(lm(1,:),lm(2,:),'b*');
-text(lm(1,:)-1,lm(2,:)-2,str,'FontSize',5,'color','b');
+text(lm(1,:),lm(2,:),str,'FontS);
 plot(wp(1,:),wp(2,:), 'g', wp(1,:),wp(2,:),'g.')
 h= setup_animations;
 veh= [0 -WHEELBASE -WHEELBASE; 0 -2 2]; % vehicle animation
