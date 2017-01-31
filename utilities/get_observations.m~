@@ -1,4 +1,4 @@
-function [z,idf]= get_observations(x, lm, idf, rmax, P_D)
+function [z,idf]= get_observations(x, lm, idf, rmax)
 % INPUTS:
 %   x - vehicle pose [x;y;phi]
 %   lm - set of all landmarks
@@ -9,13 +9,13 @@ function [z,idf]= get_observations(x, lm, idf, rmax, P_D)
 %   z - set of range-bearing observations
 %   idf - landmark index tag for each observation
 
-[lm,idf]= get_visible_landmarks(x,lm,idf,rmax,P_D);
+[lm,idf]= get_visible_landmarks(x,lm,idf,rmax);
 z= compute_range_bearing(x,lm);
 
 %
 %
 
-function [lm,idf]= get_visible_landmarks(x,lm,idf,rmax,P_D)
+function [lm,idf]= get_visible_landmarks(x,lm,idf,rmax)
 % Select set of landmarks that are visible within vehicle's semi-circular field-of-view
 dx= lm(1,:) - x(1);
 dy= lm(2,:) - x(2);
@@ -30,12 +30,11 @@ ii= find(abs(dx) < rmax & abs(dy) < rmax ... % bounding box
 % O(logN) rather that O(N).
   
 % Eliminate the non-detected lm's using the probabitlity of detection
-ind_detected= logical( binornd(1, P_D, [length(ii),1]) );
+ind_detected= binornd(1,P_D,[length(ii),1]);
 
 lm= lm(:,ii);
-lm= lm(:,ind_detected');
+lm= lm
 idf= idf(ii);
-idf= idf(ind_detected);
 
 %
 %

@@ -3,7 +3,7 @@
 
 
 
-clear;% close all;
+clear; close all;
 dbstop if error
 configfile; % ** USE THIS FILE TO CONFIGURE THE EKF-SLAM **
 
@@ -41,7 +41,7 @@ while iwp ~= 0
         dtsum= 0;
         
         % get measurements
-        [z,idft]= get_observations(xtrue, lm, ftag, MAX_RANGE); 
+        [z,idft]= get_observations(xtrue, lm, ftag, MAX_RANGE, P_D); 
         z= add_observation_noise(z,R, SWITCH_SENSOR_NOISE);
         
         % DA
