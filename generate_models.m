@@ -6,7 +6,7 @@ global T h hlm H Hlm gamma ngamma Y psi beta phi Const
 
 % compute the constant C
 Const= (2*pi)^(dz/2) * P_D^(-1) * LAMBDA * V_FOV;
-log_C= log(Const^2);
+log_C2= log(Const^2);
 
 beta= zeros(psi,1);
 phi= zeros(1,psi);
@@ -22,7 +22,7 @@ for j= 1:psi
     phi_j= T_j(end);
     
     % If all outliers
-    if phi_j == Nz, beta(j)= -phi_j*log_C; continue, end;
+    if phi_j == Nz, beta(j)= -phi_j*log_C2; continue, end;
     
     % If there is an outlier eliminate the measurement associated with it
     zj= z(:, T_j(1:end-1) ~= 0 );
@@ -43,7 +43,7 @@ for j= 1:psi
     phi(j)= phi_j;
     
     % compute BETA 
-    beta(j)= log(det(Y{j})) + ngamma(j) - phi_j*log_C;
+    beta(j)= log(det(Y{j})) + ngamma(j) - phi_j*log_C2;
 end
     
 

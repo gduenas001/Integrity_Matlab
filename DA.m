@@ -109,13 +109,13 @@ if psi > 1
             PCA= chi2cdf(min2/4, (Nz-Noutliers)*dz + Nxv);
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
         case 'outliers'
-            [~,jstar]= min(beta);
+            [~,jstar]= min(beta); dof_0= dz*(Nz - T(jstar,end));
             
             % If the candidate association is all outliers -> notify
             if T(jstar,end) == Nz, allOutliers= 1; end;
             
             nonConflictAssoc= nonConflictingAssociations(jstar);
-            nonConflictAssoc= 1;
+            nonConflictAssoc= 1; % consider all conflicting
             
             C= zeros(1,psi);
             y= cell(psi,1);
@@ -126,27 +126,29 @@ if psi > 1
                 if any(j == nonConflictAssoc), continue, end; % the corresponding PIA_term will be zero
                 
                 % Degrees of freedom
-                dof= dz*(Nz - T(j,end));
+                dof_j= dz*(Nz - T(j,end));
                 
-                
-                if dof == 0
+                if dof_j == 0
                     % if all outliers -> ny = 0
                     ny(j)= 0;
                 else               
                     % Interpolate to lower bound the non-centrality parameters
-                    ny(j)= interp1( 2:1:200, squeeze(LB(5,dof/2,:)), ngamma(j),'linear','extrap');
+                    ny(j)= interp1( 2:1:200, squeeze(LB(5,dof_j/2,:)), ngamma(j),'linear','extrap');
                 end
                 
                 % Compute C_j
                 C(j)= log( (det(Y{j})/det(Y{jstar})) * Const^(2*(phi(jstar)-phi(j))) );
+                if C(j) < 0 && T(jstar,end) > 0 
+                    ;
+                end
                 
 %                 % Direct evaluation of P(IA) - integral
-%                 fun= @(x) ncx2cdf(x-C(j),dof,ny(j)) .*  chi2pdf(x,dof);
+%                 fun= @(x) ncx2cdf(x-C(j),dof_j,ny(j)) .*  chi2pdf(x,dof_0);
 %                 PIA_term(j) = integral( fun , 0, inf);
                 
                 % Direct evaluation of P(IA) - table
-                PIA_term(j)= ...
-                    interp2(C_mesh_interp,ny_mesh_interp,squeeze(PIA_terms(:,dof/2,:))',C(j),ny(j),'linear',0);
+                PIA_term(j)= interp2(C_mesh_interp,ny_mesh_interp,...
+                    squeeze(PIA_terms(:,dof_j/2,dof_0/2,:))',C(j),ny(j),'spline',0);
             end
             
             PIA= sum(PIA_term);
