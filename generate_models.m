@@ -1,8 +1,9 @@
 
 
-function  generate_models(P,z,dz,Nz,R_2x2,V_FOV, LAMBDA, P_D)
+function  generate_models(z,dz,Nz,R_2x2,V_FOV, LAMBDA, P_D)
 
 global T h hlm H Hlm gamma ngamma Y psi beta phi Const
+global XX PX PARAMS
 
 % compute the constant C
 Const= (2*pi)^(dz/2) * P_D^(-1) * LAMBDA * V_FOV;
@@ -38,7 +39,7 @@ for j= 1:psi
         end
     end
     gamma{j}= zj(:) - h{j};
-    Y{j}= H{j}*P*H{j}' + R;
+    Y{j}= H{j}*PX*H{j}' + R;
     ngamma(j)= gamma{j}'*(Y{j}\gamma{j}); % Compute weighted norms
     phi(j)= phi_j;
     

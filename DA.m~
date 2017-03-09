@@ -77,8 +77,7 @@ for j= 1:psi
     if phi(j) == Nz
         C(j)= ( PARAMS.lambda * (1 - PARAMS.P_D)/PARAMS.P_D )^Nz + phi(jstar)*log_C2 - log(det(Y{jstar}));
         PIA_term(j)= chi2cdf(C(j), dof(j), 'upper'); 
-        ny(j)= 0;
-        ny_extended(j)= C(j);
+        ny_extended(j)= (sqrt(ny(j)) + sqrt(C(j)))^2;
         continue, 
     end;
     

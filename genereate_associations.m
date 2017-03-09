@@ -1,7 +1,8 @@
 
-function genereate_associations(x,P,z,R_2x2,GATE)
+function genereate_associations(z,R_2x2,GATE)
 
 global lm T hlm Hlm psi
+global XX PX
 
 Nxv= 3; % number of vehicle pose states
 dz= 2;  % d.o.f. of each measurement
@@ -13,8 +14,8 @@ hlm= cell(Nlm,1);
 Hlm= cell(Nlm,1);
 Slm= cell(Nlm,1);
 for l= 1:Nlm
-    [hlm{l},Hlm{l}]= observe_model_localization(x,lm(:,l));
-    Slm{l}= Hlm{l}*P*Hlm{l}' + R_2x2;
+    [hlm{l},Hlm{l}]= observe_model_localization(XX,lm(:,l));
+    Slm{l}= Hlm{l}*PX*Hlm{l}' + R_2x2;
 end
 
 % Compute the NIS distances for each possible individual association
