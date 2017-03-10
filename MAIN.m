@@ -2,7 +2,7 @@
 % This script runs a localization simulator with DA and P(IA)
 
 dbstop if error
-% dbclear if error
+dbclear if error
 
 
 clear all; close all;

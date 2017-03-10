@@ -70,39 +70,47 @@ PIA_term= zeros(psi,1);
 ny= zeros(psi,1);
 ny_extended= zeros(psi,1);
 C= zeros(psi,1);
+LHS= zeros(psi,1);
 
 for j= 1:psi
     if j == jstar, continue, end;
 %     if any(j == nonConflictAssoc), continue, end; % the corresponding PIA_term will be zero
     if phi(j) == Nz
-        C(j)= ( PARAMS.lambda * (1 - PARAMS.P_D)/PARAMS.P_D )^Nz + phi(jstar)*log_C2 - log(det(Y{jstar}));
+        C(j)= ( PARAMS.lambda * (1 - PARAMS.P_D)/PARAMS.P_D )^Nz + phi(jstar)*log_C2...
+            - log(det(Y{jstar}));
+        C(j)= 
         PIA_term(j)= chi2cdf(C(j), dof(j), 'upper'); 
         ny(j)= 0;
-        ny_extended(j)= C(j);
-        continue, 
-    end;
-    
-    if dof(j) == 0 % if all outliers -> ny = 0
-        ny(j)= 0;
-    else % Interpolate to lower bound the non-centrality parameters
-        ny(j)= interp1( 2:1:200, squeeze(LB(1,dof(j)/2,:)), ngamma(j),'linear','extrap');
+    else
+        if dof(j) == 0 % if all outliers -> ny = 0
+            ny(j)= 0;
+        else % Interpolate to lower bound the non-centrality parameters
+            ny(j)= interp1( 2:1:200, squeeze(LB(1,dof(j)/2,:)), ngamma(j),'linear','extrap');
+        end
+        % Compute C_j
+        C(j)= log( (det(Y{j})/det(Y{jstar})) * PARAMS.Const^(2*(phi(jstar)-phi(j))) );
+        
+        % Direct evaluation of P(IA) - integral
+        fun= @(x) ncx2cdf(x-C(j),dof(j),ny(j)) .*  chi2pdf(x,dof(jstar));
+        PIA_term(j) = integral( fun , 0, inf);
     end
     
-    % Compute C_j
-    C(j)= log( (det(Y{j})/det(Y{jstar})) * PARAMS.Const^(2*(phi(jstar)-phi(j))) );
-    ny_extended(j)= (sqrt(ny(j)) + sqrt(C(j)))^2;
-    
-    % Direct evaluation of P(IA) - integral
-    fun= @(x) ncx2cdf(x-C(j),dof(j),ny(j)) .*  chi2pdf(x,dof(jstar));
-    PIA_term(j) = integral( fun , 0, inf);
+    % Compute the LHS for the MJ P(IA)
+    if C(j) >= 0 
+        LHS(j)= ( sqrt(ny(j)) + sqrt(C(j)) / (1+sqrt(2)) )^2;
+    else
+        LHS(j)= 0.25* ( sqrt(ny(j)) - sqrt(-C(j)) )^2;
+    end
 end
 
 PIA= sum(PIA_term);
 PCA_GD= 1 - PIA;
 
 % MJ approach with outliers - find minimum
-ny_extended(jstar)= inf;
-PCA_MJ= chi2cdf(min(ny_extended)/(1+sqrt(2))^2 , Nz*PARAMS.dz);  
+LHS(jstar)= inf;
+PCA_MJ= chi2cdf(min(LHS), Nz*PARAMS.dz);  
+;
+
     
     
     
@@ -303,7 +311,7 @@ h= [d;
 v= z-h; v(2)= pi_to_pi(v(2));
 
 % Quick check to discard associations
-if abs(v(1)) > 2 || abs(v(2)) > deg2rad(15), nis= inf; return, end;
+% if abs(v(1)) > 2 || abs(v(2)) > deg2rad(15), nis= inf; return, end;
 
 
 % calculate H

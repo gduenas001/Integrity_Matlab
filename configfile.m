@@ -18,8 +18,8 @@ load('PIA_terms_table');
 % load('example_webmap');
 
 LM= [30, 30;
-    2, -2];
-% lm= [30, 30, 30;
+    4, -4];
+% LM= [30, 30, 30;
 %     2, 0, -2];
 % lm= [30, 30, 30, 30;
 %     1.5, -1.5, 3, -3];
@@ -33,7 +33,7 @@ wp= [0,5;
 % waypoint proximity
 PARAMS.at_waypoint= 1.0; % metres, distance from current waypoint at which to switch to next waypoint
 PARAMS.numLoops= 1; % number of loops through the waypoint list
-PARAMS.numSteps= 200;
+PARAMS.numSteps= 100;
 
 
 % control parameters
@@ -50,15 +50,14 @@ PARAMS.sigmaV= 0.3; % m/s ( default= 0.3 )
 PARAMS.sigmaG= deg2rad(3); % radians ( default= (3.0*pi/180) )
 PARAMS.Q= [PARAMS.sigmaV^2, 0; 0, PARAMS.sigmaG^2];
 
-
 % observation parameters
 PARAMS.dz= 2; % d.o.f. of one measurement
-PARAMS.maxRange= 30.0; % metres (default = 30)
+PARAMS.maxRange= inf; % metres (default = 30)
 PARAMS.V_FOV= pi*PARAMS.maxRange^2 / 2; % Total field of view (FOV) of the robot, constant over time
-PARAMS.lambda= 0.001; % density of new lm in the new FOV. Very small number until better modeled.
-PARAMS.P_D= 0.99; % probability of detection of a lm.
+PARAMS.lambda= 1/1000; % density of new lm in the new FOV. Very small number until better modeled.
+PARAMS.P_D= 0.95; % probability of detection of a lm.
 PARAMS.dt_observe= 1*PARAMS.dt_controls; % seconds, time interval between observations
-PARAMS.Const= (2*pi)^(PARAMS.dz/2) * (1- PARAMS.P_D) * PARAMS.P_D^(-1) * PARAMS.lambda;
+PARAMS.Const= (2*pi)^(PARAMS.dz/2) * PARAMS.lambda * (1- PARAMS.P_D) * PARAMS.P_D^(-1) ;
 
 % observation noises
 PARAMS.sigmaR= 0.1; % metres ( default 0.1 )
@@ -68,6 +67,7 @@ PARAMS.R= [PARAMS.sigmaR^2 0; 0 PARAMS.sigmaB^2];
      
 % data association innovation gates (Mahalanobis distances)
 PARAMS.gate= chi2inv(1-1e-15,PARAMS.dz); %0.9999999,dz);
+PARAMS.gate= inf;
 % For 2-D observation:
 %   - common gates are: 1-sigma (1.0), 2-sigma (4.0), 3-sigma (9.0), 4-sigma (16.0)
 %   - percent probability mass is: 1-sigma bounds 40%, 2-sigma 86%, 3-sigma 99%, 4-sigma 99.9%.

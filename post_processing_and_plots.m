@@ -16,11 +16,11 @@ DATA.stdXX(step+1:end,:)= [];
 
 
 % plots - P(CA) VS time
-figure; hold on; grid on;
+figure; subplot(1,2,1); hold on; grid on;
 title('Instant P(CA)');
 xlabel('Time'); ylabel('P(CA)');
-plot(DATA.PCA,'-b');
-plot(DATA.PCA_MJ,'--g');
+plot(DATA.PCA,'-b','linewidth',3);
+plot(DATA.PCA_MJ,'--g','linewidth',3);
 % plot(DATA.PCA_MJ_outliers,'-*k');
 % plot(DATA.PCAt,'or');
 % idx= find(DATA.PCAt == 0);
@@ -55,12 +55,12 @@ axis([0,step,0,1]);
 % legend('error phi','covariance phi','location','southeast');
 
 % plots - realPCA Vs calcPCA
-figure; hold on; grid on
+subplot(1,2,2); hold on; grid on
 title('Averaged P(CA)');
 xlabel('Time'); ylabel('Averaged P(CA)');
 % plot(DATA.realPCA,'-r','linewidth',2);
-plot(DATA.calcPCA,'b-','linewidth',2);
-plot(DATA.calcPCA_MJ,'g--','linewidth',2);
+plot(DATA.calcPCA,'b-','linewidth',3);
+plot(DATA.calcPCA_MJ,'g--','linewidth',3);
 % legend('Real P(CA)','Average calculated P(CA)','Average calculated P(CA) - MJ','location','southeast');
 axis([0,step,0,1]);
 
